@@ -21,6 +21,10 @@ public class Level {
         tileHeight = layer.getTileHeight();
     }
 
+    public void dispose() {
+        map.dispose();
+    }
+
     public TiledMap getMap() {
         return map;
     }

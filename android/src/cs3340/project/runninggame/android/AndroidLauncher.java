@@ -4,6 +4,8 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+
+import cs3340.project.runninggame.GameScreen;
 import cs3340.project.runninggame.RunningGame;
 
 /**

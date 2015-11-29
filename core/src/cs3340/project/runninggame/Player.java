@@ -4,6 +4,9 @@ package cs3340.project.runninggame;
  * Created by EVA Unit 02 on 11/28/2015.
  */
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 /**
@@ -28,14 +31,14 @@ class Player {
     private static float DAMPING = 0.87f;
 
     /**
-     * The enum State.
+     * The enum PlayerState.
      */
-    enum State {
+    enum PlayerState {
         /**
-         * Standing state.
+         * Standing playerState.
          */
         Standing, /**
-         * Running state.
+         * Running playerState.
          */
         Running
     }
@@ -49,24 +52,44 @@ class Player {
      */
     private Vector2 velocity;
     /**
-     * The State.
+     * The PlayerState.
      */
-    State state = State.Standing;
+    PlayerState playerState;
     /**
-     * The State time.
+     * The PlayerState time.
      */
     private float stateTime = 0;
 
     private Vector2 acceleration;
 
-    public Player(){
-        position = new Vector2();
+    /**
+     * The Running guy texture.
+     */
+    Texture runningGuyTexture;
+    TextureRegion[] regions;
+    /**
+     * The Stand.
+     */
+    Animation stand;
+    /**
+     * The Run.
+     */
+    Animation run;
+
+    public Player(float UNIT_SCALE, int x, int y){
+        loadTextAnimations();
+        position = new Vector2(x, y);
         velocity = new Vector2();
         acceleration = new Vector2();
-        state = State.Standing;
+        playerState = PlayerState.Standing;
         stateTime = 0;
+        WIDTH = UNIT_SCALE * regions[0].getRegionWidth();
+        HEIGHT = UNIT_SCALE * regions[0].getRegionHeight();
     }
 
+    public void dispose() {
+        runningGuyTexture.dispose();
+    }
 
     public static float getWIDTH() {
         return WIDTH;
@@ -121,12 +144,12 @@ class Player {
         this.velocity = velocity;
     }
 
-    public State getState() {
-        return state;
+    public PlayerState getPlayerState() {
+        return playerState;
     }
 
-    public void setState(State state) {
-        this.state = state;
+    public void setPlayerState(PlayerState playerState) {
+        this.playerState = playerState;
     }
 
     public float getStateTime() {
@@ -143,5 +166,45 @@ class Player {
 
     public void setAcceleration(Vector2 acceleration) {
         this.acceleration = acceleration;
+    }
+
+    public void loadTextAnimations() {
+        runningGuyTexture = new Texture("data/RunningGuy.png");
+        regions = TextureRegion.split(runningGuyTexture,32,32)[0];
+        stand = new Animation(0, regions[2]);
+        run = new Animation(0.15f, regions[0], regions[1], regions[2]);
+        run.setPlayMode(Animation.PlayMode.LOOP);
+    }
+
+    public Texture getRunningGuyTexture() {
+        return runningGuyTexture;
+    }
+
+    public void setRunningGuyTexture(Texture runningGuyTexture) {
+        this.runningGuyTexture = runningGuyTexture;
+    }
+
+    public TextureRegion[] getRegions() {
+        return regions;
+    }
+
+    public void setRegions(TextureRegion[] regions) {
+        this.regions = regions;
+    }
+
+    public Animation getStand() {
+        return stand;
+    }
+
+    public void setStand(Animation stand) {
+        this.stand = stand;
+    }
+
+    public Animation getRun() {
+        return run;
+    }
+
+    public void setRun(Animation run) {
+        this.run = run;
     }
 }
