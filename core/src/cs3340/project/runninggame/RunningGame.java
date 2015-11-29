@@ -11,9 +11,14 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Pool;
 
 /**
  * Creates the core instance of the game that contains all the game logic, creates the window, and
@@ -24,6 +29,9 @@ import com.badlogic.gdx.math.Vector2;
  * @since 11/24/2015
  */
 public class RunningGame extends ApplicationAdapter implements InputProcessor {
+    private static final float UNIT_SCALE = 1/16f;
+    private static final float RUNNING_FRAME_DURATION = 0.09f;
+    private float TILEWIDTH;
     /**
      * The Start pos x.
      */
@@ -34,61 +42,9 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
     static int START_POS_Y = 34;
 
     /**
-     * The type Player.
-     */
-    static class Player {
-        /**
-         * The Width.
-         */
-        static float WIDTH;
-        /**
-         * The Height.
-         */
-        static float HEIGHT;
-        /**
-         * The Max velocity.
-         */
-        static float MAX_VELOCITY = 10f;
-        /**
-         * The Damping.
-         */
-        static float DAMPING = 0.87f;
-
-        /**
-         * The enum State.
-         */
-        enum State {
-            /**
-             * Standing state.
-             */
-            Standing, /**
-             * Running state.
-             */
-            Running
-        }
-
-        /**
-         * The Position.
-         */
-        final Vector2 position = new Vector2();
-        /**
-         * The Velocity.
-         */
-        final Vector2 velocity = new Vector2();
-        /**
-         * The State.
-         */
-        State state = State.Standing;
-        /**
-         * The State time.
-         */
-        float stateTime = 0;
-    }
-
-    /**
      * The Tiled map.
      */
-    TiledMap tiledMap;
+    Level trackWorld;
     /**
      * The Camera.
      */
@@ -100,7 +56,7 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
     /**
      * The Tiled map renderer.
      */
-    OrthogonalTiledMapRenderer tiledMapRenderer;
+    OrthogonalTiledMapRenderer renderer;
     /**
      * The Stand.
      */
@@ -113,6 +69,14 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
      * The Player.
      */
     Player player;
+
+    private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
+        @Override
+        protected Rectangle newObject () {
+            return new Rectangle();
+        }
+    };
+    private Array<Rectangle> tiles = new Array<Rectangle>();
 
     /**
      *  Loads all the materials and initializes all the base features of the game
@@ -127,11 +91,13 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
         run = new Animation(0.15f, regions[0], regions[1], regions[2]);
         run.setPlayMode(Animation.PlayMode.LOOP);
 
-        Player.WIDTH = 1/16f * regions[0].getRegionWidth();
-        Player.HEIGHT = 1/16f * regions[0].getRegionHeight();
+        player.setWIDTH(UNIT_SCALE * regions[0].getRegionWidth());
+        player.setHEIGHT(UNIT_SCALE * regions[0].getRegionHeight());
 
-        tiledMap = new TmxMapLoader().load("MyCrappyMap.tmx");
-        tiledMapRenderer = new OrthogonalTiledMapRenderer(tiledMap,1/16f);
+        trackWorld = new Level("MyCrappyMap.tmx");
+        renderer = new OrthogonalTiledMapRenderer(trackWorld.getMap(),UNIT_SCALE);
+
+        TILEWIDTH = trackWorld.getTileWidth() * UNIT_SCALE;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false,16,16);
@@ -140,7 +106,7 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
         Gdx.input.setInputProcessor(this);
 
         player = new Player();
-        player.position.set(START_POS_X,START_POS_Y);
+        player.setPosition(START_POS_X, START_POS_Y);
     }
 
     /**
@@ -155,12 +121,13 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
 
         updatePlayer(deltaTime);
 
-        camera.position.x = player.position.x;
-        camera.position.y = player.position.y;
+        Vector2 newPosition = player.getPosition();
+        camera.position.x = newPosition.x;
+        camera.position.y = newPosition.y;
         camera.update();
 
-        tiledMapRenderer.setView(camera);
-        tiledMapRenderer.render();
+        renderer.setView(camera);
+        renderer.render();
 
         renderPlayer();
     }
@@ -243,31 +210,68 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
      */
     private void updatePlayer (float deltaTime) {
         if (deltaTime == 0) return;
-        player.stateTime += deltaTime;
+        player.setStateTime(player.getStateTime()+deltaTime);
 
         // clamp the velocity to the maximum, x-axis only
-        if (Math.abs(player.velocity.x) > Player.MAX_VELOCITY) {
-            player.velocity.x = Math.signum(player.velocity.x) * Player.MAX_VELOCITY;
+        if (Math.abs(player.getVelocity().x) > player.getMaxVelocity()) {
+            player.getVelocity().x = Math.signum(player.getVelocity().x) * player.getMaxVelocity();
         }
 
         // clamp the velocity to 0 if it's < 1, and set the state to standing
-        if (Math.abs(player.velocity.x) < 1) {
-            player.velocity.x = 0;
+        if (Math.abs(player.getVelocity().x) < 1) {
+            player.getVelocity().x = 0;
             player.state = Player.State.Standing;
         }
 
         // multiply by delta time so we know how far we go
         // in this frame
-        player.velocity.scl(deltaTime);
+        player.getVelocity().scl(deltaTime);
+
+
+        // perform collision detection & response, on each axis, separately
+        // if the koala is moving right, check the tiles to the right of it's
+        // right bounding box edge, otherwise check the ones to the left
+        Rectangle playerRect = rectPool.obtain();
+        playerRect.set(player.getPosition().x, player.getPosition().y + player.getHEIGHT()*0.1f, player.getWIDTH(), player.getHEIGHT());
+
+        int startX, startY, endX, endY;
+        if (player.getVelocity().x > 0) {
+            startX = endX = (int)(player.getPosition().x + player.getWIDTH() + player.getVelocity().x);
+        } else {
+            startX = endX = (int)(player.getPosition().x + player.getVelocity().x);
+        }
+
+        startY = (int)(player.getPosition().y);
+        endY = (int)(player.getPosition().y + player.getHEIGHT());
+        getTiles(startX, startY, endX, endY, tiles);
+
+        playerRect.x += player.getVelocity().x;
+
+        for (Rectangle tile : tiles) {
+
+            if (playerRect.overlaps(tile)) {
+
+                if(player.getVelocity().x > 0){
+                    player.getPosition().x = tile.x - TILEWIDTH - TILEWIDTH * 0.40f;
+                }else if(player.getVelocity().x < 0){
+                    player.getPosition().x = tile.x + TILEWIDTH + TILEWIDTH * 0.05f;
+                }
+
+                player.getVelocity().x = 0;
+
+                break;
+            }
+        }
+        playerRect.x = player.getPosition().x;
 
         // unscale the velocity by the inverse delta time and set
         // the latest position
-        player.position.add(player.velocity);
-        player.velocity.scl(1 / deltaTime);
+        player.getPosition().add(player.getVelocity());
+        player.getVelocity().scl(1 / deltaTime);
 
         // Apply damping to the velocity on the x-axis so we don't
         // walk infinitely once a key was pressed
-        player.velocity.x *= Player.DAMPING;
+        player.getVelocity().x *= player.getDAMPING();
     }
 
     /**
@@ -275,23 +279,22 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
      * in which the player is in.
      */
     private void renderPlayer () {
-        // based on the koala state, get the animation frame
         TextureRegion frame = null;
         switch (player.state) {
             case Standing:
-                frame = stand.getKeyFrame(player.stateTime);
+                frame = stand.getKeyFrame(player.getStateTime());
                 break;
             case Running:
-                frame = run.getKeyFrame(player.stateTime);
+                frame = run.getKeyFrame(player.getStateTime());
                 break;
         }
 
         // draw the koala, depending on the current velocity
         // on the x-axis, draw the koala facing either right
         // or left
-        Batch batch = tiledMapRenderer.getBatch();
+        Batch batch = renderer.getBatch();
         batch.begin();
-        batch.draw(frame, player.position.x, player.position.y, Player.WIDTH, Player.HEIGHT);
+        batch.draw(frame, player.getPosition().x, player.getPosition().y, player.getWIDTH(), player.getHEIGHT());
         batch.end();
     }
 
@@ -307,10 +310,27 @@ public class RunningGame extends ApplicationAdapter implements InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         if(button == Input.Buttons.LEFT){
-            player.velocity.x = Player.MAX_VELOCITY;
+            player.setVelocity(new Vector2(player.getMaxVelocity(), 0));
             player.state = Player.State.Running;
         }
         return false;
     }
+
+    private void getTiles (int startX, int startY, int endX, int endY, Array<Rectangle> tiles) {
+        TiledMapTileLayer layer = (TiledMapTileLayer) trackWorld.getMap().getLayers().get("FinishLine");
+        rectPool.freeAll(tiles);
+        tiles.clear();
+        for (int y = startY; y <= endY; y++) {
+            for (int x = startX; x <= endX; x++) {
+                TiledMapTileLayer.Cell cell = layer.getCell(x, y);
+                if (cell != null) {
+                    Rectangle rect = rectPool.obtain();
+                    rect.set(x, y, 1, 1);
+                    tiles.add(rect);
+                }
+            }
+        }
+    }
+
 }
 
