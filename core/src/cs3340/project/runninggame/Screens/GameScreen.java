@@ -12,9 +12,13 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool;
 
+import cs3340.project.runninggame.UI.Countdown;
+import cs3340.project.runninggame.UI.Timer;
+import cs3340.project.runninggame.World.GameState;
 import cs3340.project.runninggame.World.Level;
 import cs3340.project.runninggame.World.Player;
 import cs3340.project.runninggame.RunningGame;
@@ -30,10 +34,11 @@ import cs3340.project.runninggame.RunningGame;
 public class GameScreen implements Screen, InputProcessor {
     final RunningGame game;
 
+    private GameState gameState;
+    private Stage timerOnScreen;
+    private Stage countdownOnScreen;
+
     private static final float UNIT_SCALE = 1/16f;
-    private static final float RUNNING_FRAME_DURATION = 0.09f;
-    private float TILEWIDTH;
-    private float TILEHEIGHT;
 
     /**
      * The Start pos x.
@@ -43,6 +48,9 @@ public class GameScreen implements Screen, InputProcessor {
      * The Start pos y.
      */
     static int START_POS_Y = 34;
+
+    Timer timer;
+    Countdown countdown;
 
     /**
      * The Tiled map.
@@ -72,12 +80,19 @@ public class GameScreen implements Screen, InputProcessor {
     public GameScreen(final RunningGame gam) {
         this.game = gam;
 
+        gameState = new GameState();
+
+        countdownOnScreen = new Stage();
+        timerOnScreen = new Stage();
+
+        timer = new Timer();
+        countdown = new Countdown();
+        countdownOnScreen.addActor(countdown.getCountdown());
+        timerOnScreen.addActor(timer.getTimer());
+        timerOnScreen.addActor(timer.getTapMsg());
 
         trackWorld = new Level("MyCrappyMap.tmx");
         renderer = new OrthogonalTiledMapRenderer(trackWorld.getMap(),UNIT_SCALE);
-
-        TILEWIDTH = trackWorld.getTileWidth() * UNIT_SCALE;
-        TILEHEIGHT = trackWorld.getTileHeight() * UNIT_SCALE;
 
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 16f, 16f);
@@ -96,20 +111,47 @@ public class GameScreen implements Screen, InputProcessor {
      */
     @Override
     public void render (float delta) {
-        Gdx.gl.glClearColor(1, 0, 0, 1);
+        Gdx.gl.glClearColor(0, 1, 0, 0);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        float deltaTime = Gdx.graphics.getDeltaTime();
+        switch(gameState.getCurGameState()) {
+            case Prerace:
+                countdown.updateCountdown();
+                camera.position.x = player.getPosition().x;
+                camera.update();
 
-        updatePlayer(deltaTime);
+                renderer.setView(camera);
+                renderer.render();
 
-        camera.position.x = player.getPosition().x;
-        camera.update();
+                renderPlayer();
 
-        renderer.setView(camera);
-        renderer.render();
+                countdownOnScreen.act(delta);
+                countdownOnScreen.draw();
 
-        renderPlayer();
+                if(countdown.getCounter() == 0) {
+                    gameState.setCurGameState(GameState.CurGameState.Race);
+                    timer.startTimer();
+                    countdownOnScreen.dispose();
+                }
+                break;
+            case Race:
+                timer.updateTimer();
+
+                updatePlayer(delta);
+
+                camera.position.x = player.getPosition().x;
+                camera.update();
+
+                renderer.setView(camera);
+                renderer.render();
+
+                renderPlayer();
+
+                timerOnScreen.act(delta);
+                timerOnScreen.draw();
+                break;
+        }
+
     }
 
     /**
@@ -221,7 +263,7 @@ public class GameScreen implements Screen, InputProcessor {
 
         for (Rectangle tile : tiles) {
             if (playerRect.overlaps(tile)) {
-                game.setScreen(new EndMenuScreen(game));
+                game.setScreen(new EndMenuScreen(game, timer.getRaceTime()));
                 break;
             }
         }
@@ -318,6 +360,8 @@ public class GameScreen implements Screen, InputProcessor {
         trackWorld.dispose();
         player.dispose();
         renderer.dispose();
+        timerOnScreen.dispose();
+        countdownOnScreen.dispose();
         this.dispose();
     }
 

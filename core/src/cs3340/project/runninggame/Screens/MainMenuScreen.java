@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 
-import cs3340.project.runninggame.UI.EndMenuOptions;
 import cs3340.project.runninggame.RunningGame;
 import cs3340.project.runninggame.UI.MainMenuOptions;
 

@@ -18,18 +18,21 @@ public class EndMenuScreen implements Screen {
 
     final RunningGame game;
 
+    long raceFinalTime;
     Stage endMenu;
     EndMenuOptions endMenuOptions;
 
     OrthographicCamera camera;
 
-    public EndMenuScreen(final RunningGame gam) {
+    public EndMenuScreen(final RunningGame gam, long raceTime) {
         game = gam;
+        raceFinalTime = raceTime;
+
         camera = new OrthographicCamera();
         //camera.setToOrtho(false, 800, 480);
 
         endMenu = new Stage(new StretchViewport(720, 1280, camera));
-        endMenuOptions = new EndMenuOptions(game);
+        endMenuOptions = new EndMenuOptions(game, raceFinalTime);
         endMenu.addActor(endMenuOptions.getEndMenuOptionsTable());
 
         Gdx.input.setInputProcessor(endMenu);

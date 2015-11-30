@@ -3,10 +3,12 @@ package cs3340.project.runninggame.UI;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 
 import cs3340.project.runninggame.RunningGame;
 import cs3340.project.runninggame.Screens.GameScreen;
@@ -17,17 +19,22 @@ import cs3340.project.runninggame.Screens.MainMenuScreen;
  */
 public class EndMenuOptions {
     final RunningGame game;
+    long raceFinalTime;
     private Table endMenuOptionsTable;
     private Skin skin;
+    private Label timeMsg;
     private TextButton playAgainBtn;
     private TextButton returnBtn;
     private TextButton highScoresBtn;
     private TextButton quitBtn;
 
-    public EndMenuOptions(RunningGame gam) {
+    public EndMenuOptions(RunningGame gam, long rFT) {
         this.game = gam;
+        this.raceFinalTime = rFT;
 
         initSkin();
+
+        initLabels();
 
         initButtons();
 
@@ -58,6 +65,12 @@ public class EndMenuOptions {
     public void initSkin () {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json")
                 ,new TextureAtlas(Gdx.files.internal("ui/uiskin.atlas")));
+    }
+
+    public void initLabels() {
+        timeMsg = new Label("Final Time: " + ((double)raceFinalTime/1000.0), skin, "default");
+        timeMsg.setAlignment(Align.center, Align.center);
+        timeMsg.setFontScale(5);
     }
 
     private void initButtons() {
@@ -109,7 +122,12 @@ public class EndMenuOptions {
     public void initTable() {
         endMenuOptionsTable = new Table();
         endMenuOptionsTable.setFillParent(true);
+
         endMenuOptionsTable.defaults().width(600).height(100);
+        endMenuOptionsTable.add(timeMsg).expandX();
+        endMenuOptionsTable.row().fill();
+        endMenuOptionsTable.add().expandX();
+        endMenuOptionsTable.row().fill();
         endMenuOptionsTable.add(playAgainBtn).expandX();
         endMenuOptionsTable.row().fill();
         endMenuOptionsTable.add(returnBtn).expandX();
