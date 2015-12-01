@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.Pool;
 
 import cs3340.project.runninggame.UI.Countdown;
 import cs3340.project.runninggame.UI.Timer;
+import cs3340.project.runninggame.World.GameMusic;
 import cs3340.project.runninggame.World.GameState;
 import cs3340.project.runninggame.World.Level;
 import cs3340.project.runninggame.World.Player;
@@ -37,17 +38,18 @@ public class GameScreen implements Screen, InputProcessor {
      */
     final RunningGame game;
     private GameState gameState;
+    private GameMusic gameMusic;
     private Stage timerOnScreen;
     private Stage countdownOnScreen;
     private static final float UNIT_SCALE = 1/16f;
     /**
      * The Start pos x.
      */
-    static int START_POS_X = 39;
+    static int START_POS_X = 8;
     /**
      * The Start pos y.
      */
-    static int START_POS_Y = 34;
+    static int START_POS_Y = 15;
     /**
      * The Timer.
      */
@@ -90,6 +92,8 @@ public class GameScreen implements Screen, InputProcessor {
     public GameScreen(final RunningGame gam) {
         this.game = gam;
 
+        gameMusic = new GameMusic();
+
         gameState = new GameState();
 
         countdownOnScreen = new Stage();
@@ -101,7 +105,7 @@ public class GameScreen implements Screen, InputProcessor {
         timerOnScreen.addActor(timer.getTimer());
         timerOnScreen.addActor(timer.getTapMsg());
 
-        trackWorld = new Level("RaceTrack.tmx");
+        trackWorld = new Level("RaceTrack_v2.tmx");
         renderer = new OrthogonalTiledMapRenderer(trackWorld.getMap(),UNIT_SCALE);
 
         camera = new OrthographicCamera();
@@ -144,6 +148,7 @@ public class GameScreen implements Screen, InputProcessor {
                     gameState.setCurGameState(GameState.CurGameState.Race);
                     timer.startTimer();
                     countdownOnScreen.dispose();
+                    gameMusic.musicPlay();
                 }
                 break;
             case Race:
@@ -276,6 +281,7 @@ public class GameScreen implements Screen, InputProcessor {
 
         for (Rectangle tile : tiles) {
             if (playerRect.overlaps(tile)) {
+                gameMusic.musicStop();
                 game.setScreen(new EndMenuScreen(game, timer.getRaceTime()));
                 break;
             }
