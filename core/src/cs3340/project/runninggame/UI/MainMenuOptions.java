@@ -13,7 +13,11 @@ import com.badlogic.gdx.utils.Align;
 import cs3340.project.runninggame.RunningGame;
 
 /**
- * Created by EVA Unit 02 on 11/28/2015.
+ * Creates and sets up the options that will be displayed on the main menu
+ * of the game.
+ * @author Jesus Ramos
+ * @version 0.1
+ * @since 11/28/2015
  */
 public class MainMenuOptions {
     final RunningGame game;
@@ -23,6 +27,10 @@ public class MainMenuOptions {
     private TextButton startBtn;
     private TextButton quitBtn;
 
+    /**
+     * Initializes all the materials needed for the menu options
+     * @param gam the single RunningGame instance.
+     */
     public MainMenuOptions (RunningGame gam) {
         this.game = gam;
 
@@ -35,46 +43,42 @@ public class MainMenuOptions {
         initTable();
     }
 
+    /**
+     * @return the single RunningGame Instance
+     */
     public RunningGame getGame() {
         return game;
     }
 
+    /**
+     * @return the getMainMenuOptionsTable
+     */
     public Table getMainMenuOptionsTable() {
         return mainMenuOptionsTable;
     }
 
-    public void setMainMenuOptionsTable(Table mainMenuOptionsTable) {
-        this.mainMenuOptionsTable = mainMenuOptionsTable;
-    }
-
-    public Label getGameTitle() {
-        return gameTitle;
-    }
-
-    public void setGameTitle(Label gameTitle) {
-        this.gameTitle = gameTitle;
-    }
-
-    public Skin getSkin() {
-        return skin;
-    }
-
-
-    public void setSkin(Skin skin) {
-        this.skin = skin;
-    }
-
+    /**
+     * Initializes all the labels which will be used to render messages on the screen.
+     */
     public void initLabels() {
         gameTitle = new Label("Running Game", skin, "default");
         gameTitle.setAlignment(Align.center, Align.center);
         gameTitle.setFontScale(5);
     }
 
+    /**
+     * Loads the skin style that will be used to style the buttons and messages
+     * to be rendered on the screen.
+     */
     public void initSkin () {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json")
                 ,new TextureAtlas(Gdx.files.internal("ui/uiskin.atlas")));
     }
 
+    /**
+     * Initializes all buttons which will be used to give the player options to press
+     * on the screen.
+     */
     private void initButtons() {
         startBtn = new TextButton("Start Game", skin, "default");
         startBtn.setWidth(200f);
@@ -99,9 +103,14 @@ public class MainMenuOptions {
         });
     }
 
+    /**
+     * Initializes the table that is used to format the buttons and game title message into a
+     * neat table format for the page.
+     */
     public void initTable() {
         mainMenuOptionsTable = new Table();
         mainMenuOptionsTable.setFillParent(true);
+
         mainMenuOptionsTable.defaults().width(600).height(100);
         mainMenuOptionsTable.add(gameTitle).expandX().center();
         mainMenuOptionsTable.row().fill();

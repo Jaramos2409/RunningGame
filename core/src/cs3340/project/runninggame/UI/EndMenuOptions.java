@@ -12,10 +12,15 @@ import com.badlogic.gdx.utils.Align;
 
 import cs3340.project.runninggame.RunningGame;
 import cs3340.project.runninggame.Screens.GameScreen;
+import cs3340.project.runninggame.Screens.HighScoresScreen;
 import cs3340.project.runninggame.Screens.MainMenuScreen;
 
 /**
- * Created by EVA Unit 02 on 11/28/2015.
+ * Sets up all the buttons, messages, and pushes them onto a table
+ * for proper formatting.
+ * @author Jesus Ramos
+ * @version 0.1
+ * @since 11/28/2015
  */
 public class EndMenuOptions {
     final RunningGame game;
@@ -28,6 +33,11 @@ public class EndMenuOptions {
     private TextButton highScoresBtn;
     private TextButton quitBtn;
 
+    /**
+     * Initializes all the materials needed for the menu options
+     * @param gam the single RunningGame instance.
+     * @param rFT the final race time.
+     */
     public EndMenuOptions(RunningGame gam, long rFT) {
         this.game = gam;
         this.raceFinalTime = rFT;
@@ -41,38 +51,42 @@ public class EndMenuOptions {
         initTable();
     }
 
+    /**
+     * @return the single RunningGame Instance
+     */
     public RunningGame getGame() {
         return game;
     }
 
+    /**
+     * @return the endMenuOptionsTable
+     */
     public Table getEndMenuOptionsTable() {
         return endMenuOptionsTable;
     }
 
-    public void setEndMenuOptionsTable(Table endMenuOptionsTable) {
-        this.endMenuOptionsTable = endMenuOptionsTable;
-    }
-
-    public Skin getSkin() {
-        return skin;
-    }
-
-
-    public void setSkin(Skin skin) {
-        this.skin = skin;
-    }
-
+    /**
+     * Loads the skin style that will be used to style the buttons and messages
+     * to be rendered on the screen.
+     */
     public void initSkin () {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json")
                 ,new TextureAtlas(Gdx.files.internal("ui/uiskin.atlas")));
     }
 
+    /**
+     * Initializes all the labels which will be used to render messages on the screen.
+     */
     public void initLabels() {
         timeMsg = new Label("Final Time: " + ((double)raceFinalTime/1000.0), skin, "default");
         timeMsg.setAlignment(Align.center, Align.center);
         timeMsg.setFontScale(5);
     }
 
+    /**
+     * Initializes all buttons which will be used to give the player options to press
+     * on the screen.
+     */
     private void initButtons() {
         playAgainBtn = new TextButton("Play Again", skin, "default");
         playAgainBtn.setWidth(200f);
@@ -103,7 +117,7 @@ public class EndMenuOptions {
         highScoresBtn.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
-                highScoresBtn.setText("You clicked the button");
+                game.setScreen(new HighScoresScreen(game));
             }
         });
 
@@ -119,6 +133,10 @@ public class EndMenuOptions {
         });
     }
 
+    /**
+     * Initializes the table that is used to format all the buttons and messages into a
+     * neat table format for the page.
+     */
     public void initTable() {
         endMenuOptionsTable = new Table();
         endMenuOptionsTable.setFillParent(true);

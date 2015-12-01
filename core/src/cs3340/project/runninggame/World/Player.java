@@ -10,7 +10,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * The type Player.
+ * Keeps track of the player's size, velocity, and player state
+ * while also handling the loading of it's texture and animations.
+ * @author Jesus Ramos
+ * @version 0.1
+ * @since 11/28/2015
  */
 public class Player {
     /**
@@ -76,6 +80,13 @@ public class Player {
      */
     Animation run;
 
+    /**
+     * Creates a player by loading all it's texture/animations, setting it's position,
+     * default velocity, acceleration, playerstate, stateTime, and size.
+     * @param UNIT_SCALE the scale of the player within the world i.e. 16x16 for this game.
+     * @param x the x coordinate position of the player on the map.
+     * @param y the y coordinate position of the player on the map
+     */
     public Player(float UNIT_SCALE, int x, int y){
         loadTextAnimations();
         position = new Vector2(x, y);
@@ -87,87 +98,97 @@ public class Player {
         HEIGHT = UNIT_SCALE * regions[0].getRegionHeight();
     }
 
+    /**
+     * Disposes of the player's texture.
+     */
     public void dispose() {
         runningGuyTexture.dispose();
     }
 
+    /**
+     * @return the player width
+     */
     public static float getWIDTH() {
         return WIDTH;
     }
 
-    public static void setWIDTH(float WIDTH) {
-        Player.WIDTH = WIDTH;
-    }
-
+    /**
+     * @return the player height
+     */
     public static float getHEIGHT() {
         return HEIGHT;
     }
 
-    public static void setHEIGHT(float HEIGHT) {
-        Player.HEIGHT = HEIGHT;
-    }
-
+    /**
+     * @return the player's max velocity
+     */
     public static float getMaxVelocity() {
         return MAX_VELOCITY;
     }
 
-    public static void setMaxVelocity(float maxVelocity) {
-        MAX_VELOCITY = maxVelocity;
-    }
-
+    /**
+     * @return the velocity damping
+     */
     public static float getDAMPING() {
         return DAMPING;
     }
 
-    public static void setDAMPING(float DAMPING) {
-        Player.DAMPING = DAMPING;
-    }
-
+    /**
+     * @return the player's coordinate position
+     */
     public Vector2 getPosition() {
         return position;
     }
 
-    public void setPosition(Vector2 position) {
-        this.position = position;
-    }
-
-    public void setPosition(int x, int y) {
-        Vector2 newPosition = new Vector2(x,y);
-        this.position = newPosition;
-    }
-
+    /**
+     * @return the player's velocity
+     */
     public Vector2 getVelocity() {
         return velocity;
     }
 
+    /**
+     * Sets the player's currently velocity
+     * @param velocity the new velocity
+     */
     public void setVelocity(Vector2 velocity) {
         this.velocity = velocity;
     }
 
+    /**
+     * @return the current player state
+     */
     public PlayerState getPlayerState() {
         return playerState;
     }
 
+    /**
+     * Sets the current player state
+     * @param playerState the new player state
+     */
     public void setPlayerState(PlayerState playerState) {
         this.playerState = playerState;
     }
 
+    /**
+     * @return the current state time
+     */
     public float getStateTime() {
         return stateTime;
     }
 
+    /**
+     * Sets the current state time
+     * @param stateTime the new state time
+     */
     public void setStateTime(float stateTime) {
         this.stateTime = stateTime;
     }
 
-    public Vector2 getAcceleration() {
-        return acceleration;
-    }
-
-    public void setAcceleration(Vector2 acceleration) {
-        this.acceleration = acceleration;
-    }
-
+    /**
+     * Loads the player's texture sheet and splits it up into the
+     * two basic animations for the player in the game.
+     */
     public void loadTextAnimations() {
         runningGuyTexture = new Texture("data/RunningGuy.png");
         regions = TextureRegion.split(runningGuyTexture,32,32)[0];
@@ -176,35 +197,17 @@ public class Player {
         run.setPlayMode(Animation.PlayMode.LOOP);
     }
 
-    public Texture getRunningGuyTexture() {
-        return runningGuyTexture;
-    }
-
-    public void setRunningGuyTexture(Texture runningGuyTexture) {
-        this.runningGuyTexture = runningGuyTexture;
-    }
-
-    public TextureRegion[] getRegions() {
-        return regions;
-    }
-
-    public void setRegions(TextureRegion[] regions) {
-        this.regions = regions;
-    }
-
+    /**
+     * @return the stand animation
+     */
     public Animation getStand() {
         return stand;
     }
 
-    public void setStand(Animation stand) {
-        this.stand = stand;
-    }
-
+    /**
+     * @return the run animation
+     */
     public Animation getRun() {
         return run;
-    }
-
-    public void setRun(Animation run) {
-        this.run = run;
     }
 }

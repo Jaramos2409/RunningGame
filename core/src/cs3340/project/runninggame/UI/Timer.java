@@ -9,7 +9,10 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 
 /**
- * Created by EVA Unit 02 on 11/29/2015.
+ * The timer used to keep track of the player's time running the track.
+ * @author Jesus Ramos
+ * @version 0.1
+ * @since 11/29/2015
  */
 public class Timer {
     private Label timer;
@@ -18,6 +21,10 @@ public class Timer {
     private long startTime;
     private BitmapFont font;
 
+    /**
+     * Sets up the timer and labels that will display the ongoing time and the brief
+     * message that tells the player to tap the screen in order to run.
+     */
     public Timer () {
         font = new BitmapFont();
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -34,10 +41,16 @@ public class Timer {
         tapMsg.setPosition(200, Gdx.graphics.getHeight() * 0.2f, Align.bottom);
     }
 
+    /**
+     * Starts the timer.
+     */
     public void startTimer() {
         startTime = TimeUtils.millis();
     }
 
+    /**
+     * Updates the timer and the timer label. Sets the "Tap the screen to run!" to nothing when three seconds pass.
+     */
     public void updateTimer() {
         raceTime = TimeUtils.timeSinceMillis(startTime);
 
@@ -46,43 +59,25 @@ public class Timer {
         timer.setText("Time: " + ((double) raceTime / 1000.0));
     }
 
+    /**
+     * @return the timer label
+     */
     public Label getTimer() {
         return timer;
     }
 
-    public void setTimer(Label timer) {
-        this.timer = timer;
-    }
-
-    public BitmapFont getFont() {
-        return font;
-    }
-
-    public void setFont(BitmapFont font) {
-        this.font = font;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
+    /**
+     * @return the current race time.
+     */
     public long getRaceTime() {
         return raceTime;
     }
 
-    public void setRaceTime(long raceTime) {
-        this.raceTime = raceTime;
-    }
-
+    /**
+     * @return the "Tap the screen!" message.
+     */
     public Label getTapMsg() {
         return tapMsg;
     }
 
-    public void setTapMsg(Label tapMsg) {
-        this.tapMsg = tapMsg;
-    }
 }

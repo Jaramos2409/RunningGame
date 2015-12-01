@@ -24,22 +24,22 @@ import cs3340.project.runninggame.World.Player;
 import cs3340.project.runninggame.RunningGame;
 
 /**
- * Creates the core instance of the game that contains all the game logic, creates the window, and
- * processes all the input of the game thus far.
+ * Creates the core instance of the game that contains all the game logic, creates the main game window, and
+ * processes all the input of the game.
  *
  * @author Jesus Ramos
- * @version 0.1
- * @since 11/24/2015
+ * @version 0.2
+ * @since 11/28/2015
  */
 public class GameScreen implements Screen, InputProcessor {
+    /**
+     * The Game.
+     */
     final RunningGame game;
-
     private GameState gameState;
     private Stage timerOnScreen;
     private Stage countdownOnScreen;
-
     private static final float UNIT_SCALE = 1/16f;
-
     /**
      * The Start pos x.
      */
@@ -48,22 +48,30 @@ public class GameScreen implements Screen, InputProcessor {
      * The Start pos y.
      */
     static int START_POS_Y = 34;
-
-    Timer timer;
-    Countdown countdown;
-
     /**
-     * The Tiled map.
+     * The Timer.
+     */
+    Timer timer;
+    /**
+     * The Countdown.
+     */
+    Countdown countdown;
+    /**
+     * The Track world.
      */
     Level trackWorld;
-
+    /**
+     * The Renderer.
+     */
     OrthogonalTiledMapRenderer renderer;
     /**
      * The Camera.
      */
     OrthographicCamera camera;
+    /**
+     * The Player.
+     */
     Player player;
-
     private Pool<Rectangle> rectPool = new Pool<Rectangle>() {
         @Override
         protected Rectangle newObject () {
@@ -73,9 +81,11 @@ public class GameScreen implements Screen, InputProcessor {
     private Array<Rectangle> tiles = new Array<Rectangle>();
 
     /**
-     *  Loads all the materials and initializes all the base features of the game
-     *  such as the camera, the map, the player sprites, the input processor,
-     *  and initial player position.
+     * Loads all the materials and initializes all the base features of the game
+     * such as the camera, the map, the player sprites, the input processor,
+     * and initial player position.
+     *
+     * @param gam the single RunningGame instance
      */
     public GameScreen(final RunningGame gam) {
         this.game = gam;
@@ -91,7 +101,7 @@ public class GameScreen implements Screen, InputProcessor {
         timerOnScreen.addActor(timer.getTimer());
         timerOnScreen.addActor(timer.getTapMsg());
 
-        trackWorld = new Level("MyCrappyMap.tmx");
+        trackWorld = new Level("RaceTrack.tmx");
         renderer = new OrthogonalTiledMapRenderer(trackWorld.getMap(),UNIT_SCALE);
 
         camera = new OrthographicCamera();
@@ -107,7 +117,9 @@ public class GameScreen implements Screen, InputProcessor {
 
     /**
      * Draws all of the game onto the screen such as the tiled map and the player.
+     * Sets the games pre-race and race states whe necessary.
      * Also updates the camera after the player has moved.
+     * @param delta the time since the last time the game updated
      */
     @Override
     public void render (float delta) {
@@ -226,8 +238,9 @@ public class GameScreen implements Screen, InputProcessor {
 
     /**
      * Updates the players velocity depending on whether the
-     * player is triggering movement or not. Also shifts the playerState
+     * player is triggering movement or not. Shifts the playerState
      * of the player which is used in renderPlayer to trigger the respective animation.
+     * Also keeps track of whether the player has reached the finish line.
      * @param deltaTime the time since the game last updated
      */
     private void updatePlayer (float deltaTime) {
@@ -290,9 +303,6 @@ public class GameScreen implements Screen, InputProcessor {
                 break;
         }
 
-        // draw the koala, depending on the current velocity
-        // on the x-axis, draw the koala facing either right
-        // or left
         Batch batch = renderer.getBatch();
         batch.begin();
         batch.draw(frame, player.getPosition().x, player.getPosition().y, player.getWIDTH(), player.getHEIGHT());
@@ -301,7 +311,7 @@ public class GameScreen implements Screen, InputProcessor {
 
     /**
      * Is triggered when the player presses down anywhere on th touch screen. Makes
-     * the player move to the left on the screen.
+     * the player move to the right on the screen.
      * @param screenX the screenX
      * @param screenY the screenY
      * @param pointer the pointer
@@ -317,6 +327,14 @@ public class GameScreen implements Screen, InputProcessor {
         return false;
     }
 
+    /**
+     * Retrieves all the nearby tiles from the player and inserts them into the Rectangle Pool.
+     * @param startX the startX
+     * @param startY the startY
+     * @param endX the endX
+     * @param endY the endY
+     * @param tiles the tiles
+     */
     private void getTiles (int startX, int startY, int endX, int endY, Array<Rectangle> tiles) {
         TiledMapTileLayer layer = (TiledMapTileLayer) trackWorld.getMap().getLayers().get("FinishLine");
         rectPool.freeAll(tiles);

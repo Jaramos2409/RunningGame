@@ -9,7 +9,10 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.TimeUtils;
 
 /**
- * Created by EVA Unit 02 on 11/29/2015.
+ * The countdown timer at the beginning of the game.
+ * @author Jesus Ramos
+ * @version 0.1
+ * @since 11/29/2015
  */
 public class Countdown {
     private Label countdown;
@@ -18,6 +21,11 @@ public class Countdown {
     private long startTime;
     private BitmapFont font;
 
+    /**
+     * Creates the countdown timer by setting the countdown to 3, and creates
+     * the label that will contain the message that shows at the beginning
+     * of the game.
+     */
     public Countdown () {
         font = new BitmapFont();
         font.getRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
@@ -31,6 +39,10 @@ public class Countdown {
         countdown.setPosition(10, Gdx.graphics.getHeight() * 0.9f);
     }
 
+    /**
+     * Updates the counter by subtracting it second by second.
+     * It updates the label to display the current count respectively.
+     */
     public void updateCountdown () {
         elapsedTime = TimeUtils.timeSinceMillis(startTime);
         if ((elapsedTime/1000) == 1) {
@@ -40,43 +52,15 @@ public class Countdown {
         countdown.setText("Start in: " + counter);
     }
 
+    /**
+     * @return the countdown label
+     */
     public Label getCountdown() {
         return countdown;
-    }
-
-    public void setCountdown(Label countdown) {
-        this.countdown = countdown;
     }
 
     public long getCounter() {
         return counter;
     }
 
-    public void setCounter(long counter) {
-        this.counter = counter;
-    }
-
-    public long getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public void setElapsedTime(long elapsedTime) {
-        this.elapsedTime = elapsedTime;
-    }
-
-    public long getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(long startTime) {
-        this.startTime = startTime;
-    }
-
-    public BitmapFont getFont() {
-        return font;
-    }
-
-    public void setFont(BitmapFont font) {
-        this.font = font;
-    }
 }

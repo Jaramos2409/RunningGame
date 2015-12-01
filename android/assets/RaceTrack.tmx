@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="128" height="64" tilewidth="16" tileheight="16" nextobjectid="22">
+ <tileset firstgid="1" name="tileset" tilewidth="16" tileheight="16" spacing="1" tilecount="1036">
+  <image source="tileset.png" trans="ff00ff" width="628" height="475"/>
+ </tileset>
+ <tileset firstgid="1037" name="startTile" tilewidth="16" tileheight="16" tilecount="4">
+  <image source="StartTile.png" width="79" height="16"/>
+ </tileset>
+ <tileset firstgid="1041" name="finishTile" tilewidth="16" tileheight="16" tilecount="4">
+  <image source="FinishTitle.png" width="79" height="16"/>
+  <tile id="3">
+   <objectgroup draworder="index">
+    <object id="0" x="7" y="5"/>
+   </objectgroup>
+  </tile>
+ </tileset>
+ <layer name="World" width="128" height="64">
+  <data encoding="base64" compression="zlib">
+   eJzt1jEKhDAQQNFALuo5PE2wcr2L7pV2BEsXLIQw5BWPNCkm85vMtZQZAAAAAAAAAAAAAAAAAOCBrZbpG/ZaWnZr6L3PbD7R/ogztOTOt+ivf/edZqL/2Narf/wBWnab/gAAAAAAAAAAAAAAQGfLjT93pxvd50d/9Oed9vqPQ/+x6Y/+ef0A3bOkgA==
+  </data>
+ </layer>
+ <layer name="StartLine" width="128" height="64">
+  <data encoding="base64" compression="zlib">
+   eJzt0TENACAMAMEmMAMSMVxPWGDr0DsFn3wEAAAAAAAAAAAAAAAAAAD8OTNudQN1tv+tLf9by+E/AAAAAAAAAAAAAAAAAAAAPTyhrwKK
+  </data>
+ </layer>
+ <layer name="FinishLine" width="128" height="64">
+  <data encoding="base64" compression="zlib">
+   eJzt0bENACAMBLEvmADYX4zKCClTxJ7gpEsAAAAAAAAAAAAAAAAAAGCOvfK6G+hz/B/t+g8AAAAAAAAAAAAAAAAAAAAUPl/VAiY=
+  </data>
+ </layer>
+</map>
