@@ -24,15 +24,15 @@ public class Player {
     /**
      * The Height.
      */
-    private static float HEIGHT;
+    private float HEIGHT;
     /**
      * The Max velocity.
      */
-    private static float MAX_VELOCITY = 10f;
+    private float MAX_VELOCITY = 10f;
     /**
      * The Damping.
      */
-    private static float DAMPING = 0.87f;
+    private  float DAMPING = 0.87f;
 
     /**
      * The enum PlayerState.
@@ -108,28 +108,28 @@ public class Player {
     /**
      * @return the player width
      */
-    public static float getWIDTH() {
+    public float getWIDTH() {
         return WIDTH;
     }
 
     /**
      * @return the player height
      */
-    public static float getHEIGHT() {
+    public  float getHEIGHT() {
         return HEIGHT;
     }
 
     /**
      * @return the player's max velocity
      */
-    public static float getMaxVelocity() {
+    public float getMaxVelocity() {
         return MAX_VELOCITY;
     }
 
     /**
      * @return the velocity damping
      */
-    public static float getDAMPING() {
+    public float getDAMPING() {
         return DAMPING;
     }
 
